@@ -188,7 +188,7 @@ def prepare_dataset(dataset: Dataset, tokenizer, max_length: int = 2048):
         )
         
         # For causal LM, labels are the same as input_ids
-        model_inputs["labels"] = model_inputs["input_ids"].copy()
+        model_inputs["labels"] = [input_ids[:] for input_ids in model_inputs["input_ids"]]
         
         return model_inputs
     
@@ -196,6 +196,7 @@ def prepare_dataset(dataset: Dataset, tokenizer, max_length: int = 2048):
     tokenized_dataset = dataset.map(
         tokenize_function,
         batched=True,
+        batch_size=100,  # Process in smaller batches
         remove_columns=dataset.column_names,
         desc="Tokenizing"
     )
@@ -308,7 +309,8 @@ def main():
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer,
         mlm=False,  # Causal LM, not masked LM
-        pad_to_multiple_of=8
+        pad_to_multiple_of=8,
+        return_tensors="pt"
     )
     
     # Training arguments
