@@ -1,36 +1,6 @@
 #!/usr/bin/env python3
 """
-Fine-tune Llama 3.1 def load_clearledgr_dataset(dataset_path: str):
-    """Load Clearledgr financial dataset"""
-    logger = logging.getLogger(__name__)
-    
-    if not os.path.exists(dataset_path):
-        logger.error(f"Dataset not found at {dataset_path}")
-        raise FileNotFoundError(f"Dataset not found: {dataset_path}")
-    
-    logger.info(f"Loading dataset from {dataset_path}")
-    
-    # Check if it's a JSON file or HF dataset directory
-    if dataset_path.endswith('.json'):
-        # Load JSON file and convert to HF dataset
-        import json
-        with open(dataset_path, 'r') as f:
-            data = json.load(f)
-        
-        # Convert to HuggingFace dataset format
-        from datasets import Dataset
-        if isinstance(data, list):
-            dataset = Dataset.from_list(data)
-        elif isinstance(data, dict) and 'data' in data:
-            dataset = Dataset.from_list(data['data'])
-        else:
-            dataset = Dataset.from_dict(data)
-        
-        logger.info(f"Loaded {len(dataset)} samples from JSON file")
-        return dataset
-    else:
-        # Load as HuggingFace dataset directory
-        return load_from_disk(dataset_path)arledgr Financial AI
+Fine-tune Llama 3.1 8B for Clearledgr Financial AI
 
 RunPod-optimized fine-tuning script with LoRA for efficient training
 and financial domain specialization.
@@ -79,12 +49,33 @@ def load_clearledgr_dataset(dataset_path: str) -> Dataset:
     """Load Clearledgr financial training dataset"""
     logger = logging.getLogger(__name__)
     
-    if os.path.exists(dataset_path):
-        logger.info(f"Loading dataset from {dataset_path}")
-        return load_from_disk(dataset_path)
-    else:
+    if not os.path.exists(dataset_path):
         logger.error(f"Dataset not found at {dataset_path}")
         raise FileNotFoundError(f"Dataset not found: {dataset_path}")
+    
+    logger.info(f"Loading dataset from {dataset_path}")
+    
+    # Check if it's a JSON file or HF dataset directory
+    if dataset_path.endswith('.json'):
+        # Load JSON file and convert to HF dataset
+        import json
+        with open(dataset_path, 'r') as f:
+            data = json.load(f)
+        
+        # Convert to HuggingFace dataset format
+        from datasets import Dataset
+        if isinstance(data, list):
+            dataset = Dataset.from_list(data)
+        elif isinstance(data, dict) and 'data' in data:
+            dataset = Dataset.from_list(data['data'])
+        else:
+            dataset = Dataset.from_dict(data)
+        
+        logger.info(f"Loaded {len(dataset)} samples from JSON file")
+        return dataset
+    else:
+        # Load as HuggingFace dataset directory
+        return load_from_disk(dataset_path)
 
 def create_lora_config() -> LoraConfig:
     """Create LoRA configuration for efficient fine-tuning"""
