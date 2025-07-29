@@ -167,20 +167,17 @@ def prepare_dataset(dataset: Dataset, tokenizer, max_length: int = 2048):
             # Format without input
             return f"### Instruction:\n{instruction}\n\n### Response:\n{output}"
     
-    def tokenize_function(examples):
+    def tokenize_function(example):
         # Convert instruction-input-output format to text
-        texts = []
-        for i in range(len(examples["instruction"])):
-            instruction = examples["instruction"][i]
-            input_text = examples.get("input", [""] * len(examples["instruction"]))[i]
-            output = examples["output"][i]
-            
-            formatted_text = format_instruction(instruction, input_text, output)
-            texts.append(formatted_text)
+        instruction = example["instruction"]
+        input_text = example.get("input", "")
+        output = example["output"]
+        
+        formatted_text = format_instruction(instruction, input_text, output)
         
         # Tokenize the formatted text
         model_inputs = tokenizer(
-            texts,
+            formatted_text,
             truncation=True,
             padding=False,
             max_length=max_length,
@@ -195,8 +192,7 @@ def prepare_dataset(dataset: Dataset, tokenizer, max_length: int = 2048):
     logger.info("Tokenizing dataset...")
     tokenized_dataset = dataset.map(
         tokenize_function,
-        batched=True,
-        batch_size=100,  # Process in smaller batches
+        batched=False,  # Process one sample at a time
         remove_columns=dataset.column_names,
         desc="Tokenizing"
     )
