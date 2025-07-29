@@ -219,7 +219,7 @@ def create_training_arguments(output_dir: str, **kwargs) -> TrainingArguments:
         "logging_steps": 100,
         "save_steps": 500,
         "eval_steps": 500,
-        "evaluation_strategy": "steps",
+        "eval_strategy": "steps",
         "save_strategy": "steps",
         "warmup_steps": 100,
         "fp16": True,
