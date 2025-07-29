@@ -188,7 +188,7 @@ def prepare_dataset(dataset: Dataset, tokenizer, max_length: int = 2048):
         )
         
         # For causal LM, labels are the same as input_ids
-        model_inputs["labels"] = [input_ids[:] for input_ids in model_inputs["input_ids"]]
+        model_inputs["labels"] = model_inputs["input_ids"]
         
         return model_inputs
     
