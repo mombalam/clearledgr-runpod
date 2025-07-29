@@ -66,10 +66,22 @@ def load_clearledgr_dataset(dataset_path: str) -> Dataset:
         from datasets import Dataset
         if isinstance(data, list):
             dataset = Dataset.from_list(data)
+        elif isinstance(data, dict) and 'training_data' in data:
+            # Handle our specific dataset structure
+            dataset = Dataset.from_list(data['training_data'])
         elif isinstance(data, dict) and 'data' in data:
             dataset = Dataset.from_list(data['data'])
         else:
-            dataset = Dataset.from_dict(data)
+            # If it's a flat dict, try to extract lists
+            training_samples = []
+            for key, value in data.items():
+                if isinstance(value, list):
+                    training_samples.extend(value)
+            if training_samples:
+                dataset = Dataset.from_list(training_samples)
+            else:
+                logger.error(f"Could not find training data in JSON structure. Keys: {list(data.keys())}")
+                raise ValueError(f"Invalid dataset structure in {dataset_path}")
         
         logger.info(f"Loaded {len(dataset)} samples from JSON file")
         return dataset
