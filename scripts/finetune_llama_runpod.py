@@ -158,10 +158,29 @@ def prepare_dataset(dataset: Dataset, tokenizer, max_length: int = 2048):
     """Prepare dataset for training"""
     logger = logging.getLogger(__name__)
     
+    def format_instruction(instruction, input_text, output):
+        """Format the instruction-input-output into a training text"""
+        if input_text and input_text.strip():
+            # Format with input
+            return f"### Instruction:\n{instruction}\n\n### Input:\n{input_text}\n\n### Response:\n{output}"
+        else:
+            # Format without input
+            return f"### Instruction:\n{instruction}\n\n### Response:\n{output}"
+    
     def tokenize_function(examples):
-        # Tokenize the text
+        # Convert instruction-input-output format to text
+        texts = []
+        for i in range(len(examples["instruction"])):
+            instruction = examples["instruction"][i]
+            input_text = examples.get("input", [""] * len(examples["instruction"]))[i]
+            output = examples["output"][i]
+            
+            formatted_text = format_instruction(instruction, input_text, output)
+            texts.append(formatted_text)
+        
+        # Tokenize the formatted text
         model_inputs = tokenizer(
-            examples["text"],
+            texts,
             truncation=True,
             padding=False,
             max_length=max_length,
